@@ -73,6 +73,7 @@ const ReservationPage = () => {
         header: 'debut Periode',
         muiEditTextFieldProps: {
           required: true,
+          type:"number",
           error: !!validationErrors?.debutPeriode,
           helperText: validationErrors?.debutPeriode,
           onFocus: () =>
@@ -87,6 +88,7 @@ const ReservationPage = () => {
         header: 'fin Periode',
         muiEditTextFieldProps: {
           required: true,
+          type:"number",
           error: !!validationErrors?.finPeriode,
           helperText: validationErrors?.finPeriode,
           onFocus: () =>
