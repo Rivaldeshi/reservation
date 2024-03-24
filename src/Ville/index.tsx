@@ -76,8 +76,14 @@ const VillePage = () => {
       return;
     }
     setValidationErrors({});
-    await createVille(values);
-    table.setCreatingRow(null); //exit creating mode
+    try {
+      await createVille(values);
+      table.setCreatingRow(null); //exit creating mode
+    } catch (err) {
+      console.log(err)
+    }
+
+
   };
 
   //UPDATE action
@@ -91,13 +97,19 @@ const VillePage = () => {
       return;
     }
     setValidationErrors({});
-    await updateVille(values);
-    table.setEditingRow(null); //exit editing mode
+    try {
+      await updateVille(values);
+      table.setEditingRow(null);
+    } catch (err) {
+      console.log(err)
+    }
+    //exit editing mode
   };
 
   //DELETE action
   const openDeleteConfirmModal = async (row: MRT_Row<Ville>) => {
     if (window.confirm('Are you sure you want to delete this Ville?')) {
+
       deleteVille(row.original.id)
 
     }

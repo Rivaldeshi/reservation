@@ -23,7 +23,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Reservation, useCreateReservation, useDeleteReservation, useGetReservations, useUpdateReservation } from '../services/reservation.service';
 import axios from 'axios';
 import { useGetApartments } from '../services/appartement.service';
-
+import CancelIcon from '@mui/icons-material/Cancel';
+import AddTaskIcon from '@mui/icons-material/AddTask';
 
 const ReservationPage = () => {
   const [validationErrors, setValidationErrors] = useState<
@@ -114,24 +115,6 @@ const ReservationPage = () => {
           return elem.nom
         }),
       },
-
-      {
-        accessorKey: 'statut',
-        header: 'statut',
-        accessorFn: (row) => row.statut === 0 ? 'ACTIVE' : 'UNACTIVE',
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors?.statut,
-          helperText: validationErrors?.statut,
-          onFocus: () =>
-            setValidationErrors({
-              ...validationErrors,
-              statut: undefined,
-            }),
-        },
-        editVariant: 'select',
-        editSelectOptions: ['ACTIVE', 'UNACTIVE'],
-      },
     ],
     [fetchedApartments, validationErrors],
   );
@@ -150,7 +133,7 @@ const ReservationPage = () => {
     setValidationErrors({});
 
     values.idAppartement = fetchedApartments.find(appart => appart.nom === values.idAppartement)?.id
-    values.statut = values.statut === 'ACTIVE' ? 0 : -1;
+    values.statut = 0;
     try {
       await createReservation(values);
       table.setCreatingRow(null);
@@ -172,7 +155,6 @@ const ReservationPage = () => {
       return;
     }
     setValidationErrors({});
-    values.statut = values.statut === 'ACTIVE' ? 0 : -1;
     values.idAppartement = fetchedApartments.find(appart => appart.nom === values.idAppartement)?.id
     try {
       await updateReservation(values);
@@ -183,10 +165,13 @@ const ReservationPage = () => {
   };
 
   //DELETE action
-  const openDeleteConfirmModal = async (row: MRT_Row<Reservation>) => {
-    if (window.confirm('Are you sure you want to delete this Reservation?')) {
-      deleteReservation(row.original.id + "")
+  const annulation = async (row: MRT_Row<Reservation>, enable: boolean) => {
+    if (enable) {
+      await updateReservation({ ...row.original, statut: 0 });
+    } else {
+      await updateReservation({ ...row.original, statut: -1 });
     }
+
   };
 
   const table = useMaterialReactTable({
@@ -252,7 +237,23 @@ const ReservationPage = () => {
           <IconButton onClick={() => table.setEditingRow(row)}>
             <EditIcon />
           </IconButton>
+
+
         </Tooltip>
+
+        {row.original.statut === 0 ?
+          <Tooltip title="Cancel">
+            <IconButton onClick={() => annulation(row, false)}>
+              <CancelIcon />
+            </IconButton>
+          </Tooltip>
+          :
+          <Tooltip title="Active reservation">
+            <IconButton onClick={() => annulation(row, true)}>
+              <AddTaskIcon />
+            </IconButton>
+          </Tooltip>
+        }
       </Box>
     ),
     renderTopToolbarCustomActions: ({ table }) => (
